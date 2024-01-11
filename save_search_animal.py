@@ -1,8 +1,7 @@
 #!/usr/bin/python
 #encoding=utf-8
-
 from __future__ import annotations
-
+import os
 import re
 import pathlib
 
@@ -52,40 +51,41 @@ class SearchAndSave:
         print('animList.txt 파일이 존재하지 않습니다.') 
         return False
 
-    # 디렉토리에 있는 파일명 리스트로 받기
+    # animList.txt 제외한 디렉토리에 있는 파일명 리스트로 받기
     def get_files_Path(self) -> list:
-        file_animList = list()
+        dir_name_list = list()
         for i in self.__s_path.glob('**/*.txt'):
             i = i.as_posix()
-            print(self.__s_path.as_posix())
-            file_animName = i.replace(self.__s_path.as_posix(), '')
-            file_animName = file_animName.lstrip('/').rstrip('.txt')
-            if file_animName is not 'animList':
-                file_animList.append(file_animName)
-        print(file_animList)
-        return file_animName
-    
-    # TODO: 디렉토리에 있는 파일명 / 소리 형태의 리스트 받기
-    def get_dir_fileList(self) -> list:
-        pathList = list()
-        for i in self.get_files_Path():
-            if i.search('animList') is True:
-                with open(i.as_posix(), 'r', encoding='UTF8') as f:
-                    line = f.readline()
-                pathList.append(line)
-        print(pathList)
+            temp = i.replace(self.__s_path.as_posix(), '')
+            # file_animName = file_animName.lstrip('/').rstrip('.txt')
+            temp = temp.lstrip('/')
+            file_anim_name, exr = os.path.splitext(temp)
+            dir_name_list.append(file_anim_name)
+        return dir_name_list
 
-    # TODO: animList.txt에 디렉토리에 있는 파일명과 내용을 넣기
-    def write_fileName_to_animList(self) -> list:
+    # 디렉토리에 있는 파일명 / 소리 형태의 리스트 받기
+    def get_dir_fileList(self) -> list[str]:
+        file_list = list()
+        file_name_list = self.get_files_Path()
+        path_list = list(self.__s_path.glob('**/*.txt'))
+
+        for num in range(len(path_list)):
+            file_name_list[num] 
+            if file_name_list[num] == 'animList':
+                continue
+            with open(path_list[num].as_posix(), 'r', encoding='UTF8') as f:
+                sound = f.readline()
+            file_list.append([file_name_list[num], sound])
+        print(file_list)
+        return file_list
+
+    # animList.txt에 디렉토리에 있는 파일명과 내용을 넣기
+    def write_fileName_to_animList(self) -> None:
+        dir_list = self.get_dir_fileList()
         with open(self.animList_path.as_posix(), 'w', encoding='UTF8') as f:
-            f.write(f'{self.__s_animal_name} / {self.__s_animal_sound}')
-
-
-    # TODO: 저장된 경로 보여주기
-    
-
-
-
+            for i in range(len(dir_list)):
+                f.write(f'{dir_list[i][0]} / {dir_list[i][1]}\n')
+            f.write(f'{self.__s_animal_name} / {self.__s_animal_sound}\n')
 
     # 사용자에게 입력 받은 동물 이름, 소리 세팅
     @property
@@ -107,8 +107,11 @@ class SearchAndSave:
             tmp_lst.append(tmp_anim)
         self.anim_list = tmp_lst
         return self.anim_list
-
     
+    # animList.txt 에 동물 이름, 소리 추가
+    def add_animList(self) -> list:
+        with open(self.animList_path.as_posix(), 'a', encoding='UTF8') as f:
+            f.write(f'{self.__s_animal_name} / {self.__s_animal_sound}')    
 
     # animList.txt 안에 동물 이름이 존재하는지 확인
     def check_animList(self) -> bool:
@@ -122,40 +125,40 @@ class SearchAndSave:
         return False
 
     # 파일이 존재해 해당 파일의 내용을 바꿀지 묻는다
-    def ask_file_content(self, file_bool: bool) -> bool:
+    def ask_file_content(self, file_bool: bool) -> None:
         change_YN = input('파일이 존재합니다! {0}.txt의 내용을 바꿀까요? -- Y/N'.format(self.__s_animal_name))
         if change_YN == 'Y':
-            return True
-        return False
+            self.save_file()
+            print(f'{self.__s_animal_name}.txt 파일의 내용을 {self.__s_animal_sound}로 새로 저장합니다.')
+        print('새로 저장하지 않습니다.')
 
-    # animList.txt 에 동물 이름, 소리 추가
-    def add_animList(self) -> list:
-        with open(self.animList_path.as_posix(), 'a', encoding='UTF8') as f:
-            f.write(f'{self.__s_animal_name} / {self.__s_animal_sound}')
 
-    # 동물이름 파일의 동물 소리 내용 저장
+    # 동물이름 파일의 동물 소리 내용 저장 및 내용 변경
     def save_file(self) -> None:
         with open(f'{self.__s_path.as_posix()}/{self.__s_animal_name}.txt', 'w', encoding='UTF8') as f:
             f.write(self.__s_animal_sound)
 
-
     # TODO: handler
     def handler(self) -> None:
-        a = self.get_files_Path()
-        print(a)
+        # check_exist = self.check_animList()
+        # if check_exist is True:
+        #     self.ask_file_content()
+
+
+        # a = self.write_fileName_to_animList()
+        # print(a)
 
 
 #def main():
     # user_lst = input('[찾을 경로] [동물 이름] [동물 소리] 순으로 입력해주세요 :\n').split(' ')
-    # print(user_lst[0])
-
-    # user = SearchAndSave(user_lst[0],user_lst[1],user_lst[2])
+    # animal_io = SearchAndSave(user_lst[0],user_lst[1],user_lst[2])
+        
     # user = SearchAndSave('location', 'name', 'sound')
     # print('{0}/Desktop/ani'.format(pathlib.Path.home().as_posix()))
     
 
   
 if __name__ == '__main__':
-    print('\n시작<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-    fio = SearchAndSave('C:/Users/USER/Desktop/ani', '햄스터', '멍멍')
+    print('\n>>>>>>>>>>>>>>> 시작 ')
+    fio = SearchAndSave('/home/rapa/git_workspace/ani', '햄스터', '멍멍')
     fio.handler()
