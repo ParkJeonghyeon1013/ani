@@ -76,7 +76,6 @@ class SearchAndSave:
             with open(path_list[num].as_posix(), 'r', encoding='UTF8') as f:
                 sound = f.readline()
             file_list.append([file_name_list[num], sound])
-        print(file_list)
         return file_list
 
     # animList.txt에 디렉토리에 있는 파일명과 내용을 넣기
@@ -85,7 +84,6 @@ class SearchAndSave:
         with open(self.animList_path.as_posix(), 'w', encoding='UTF8') as f:
             for i in range(len(dir_list)):
                 f.write(f'{dir_list[i][0]} / {dir_list[i][1]}\n')
-            f.write(f'{self.__s_animal_name} / {self.__s_animal_sound}\n')
 
     # 사용자에게 입력 받은 동물 이름, 소리 세팅
     @property
@@ -108,7 +106,8 @@ class SearchAndSave:
         self.anim_list = tmp_lst
         return self.anim_list
     
-    # animList.txt 에 동물 이름, 소리 추가
+    
+    # animList.txt 에 사용자가 쓴 동물 이름, 소리 추가
     def add_animList(self) -> list:
         with open(self.animList_path.as_posix(), 'a', encoding='UTF8') as f:
             f.write(f'{self.__s_animal_name} / {self.__s_animal_sound}')    
@@ -118,47 +117,94 @@ class SearchAndSave:
         anim_list = self.set_animList()
         for i in range(len(anim_list)):
             if anim_list[i][0] == self.__s_animal_name:
-                print(f'해당 디렉토리에 {self.__s_animal_name}.txt 이름의 파일이 존재합니다')
+                print(f'\n해당 디렉토리에 {self.__s_animal_name}.txt 이름의 파일이 존재합니다')
                 return True
 
-        print(f'해당 디렉토리에 {self.__s_animal_name}.txt 이름의 파일이 존재하지 않습니다.')
+        print(f'\n해당 디렉토리에 {self.__s_animal_name}.txt 이름의 파일이 존재하지 않습니다.')
         return False
 
-    # 파일이 존재해 해당 파일의 내용을 바꿀지 묻는다
-    def ask_file_content(self, file_bool: bool) -> None:
-        change_YN = input('파일이 존재합니다! {0}.txt의 내용을 바꿀까요? -- Y/N'.format(self.__s_animal_name))
-        if change_YN == 'Y':
-            self.save_file()
-            print(f'{self.__s_animal_name}.txt 파일의 내용을 {self.__s_animal_sound}로 새로 저장합니다.')
-        print('새로 저장하지 않습니다.')
+    # animList 내용 출력
+    def show_directory_content(self):
+        print('---------------------------------------------------------------------')
+        for animList in self.set_animList():
+            print('|',f'[{animList[0]}.txt] 파일에 [{animList[1]}] 이 저장되어있습니다.'.center(50),'|')
+        print('---------------------------------------------------------------------\n')
 
+    # 파일이 존재해 해당 파일 안의 내용을 바꿀지 묻는다
+    def ask_file_content(self) -> bool:
+        change_YN = input(f'\n{self.__s_animal_name}.txt의 내용을 [{self.__s_animal_sound}]로바꿀까요? -- Y/N\n')
+        if change_YN.lower() == 'y':
+            print(f'\n[{self.__s_animal_name}.txt] 파일의 내용을 [{self.__s_animal_sound}](으)로 새로 저장합니다.')
+            return True
+        else: 
+            print(f'\n[{self.__s_animal_name}.txt] 파일의 내용을 새로 저장하지 않습니다.')
+            return False
+        
+    # 파일 삭제 여부 묻는다
+    def ask_delete_file(self) -> bool:
+        delete_YN = input(f'\n[{self.__s_animal_name}.txt] 파일을 삭제할까요? -- Y/N\n')
+        if delete_YN.lower() == 'y':
+            print(f'\n[{self.__s_animal_name}.txt] 파일을 삭제합니다.')
+            return True
+        else: 
+            print(f'\n[{self.__s_animal_name}.txt] 파일을 유지합니다.')
+            return False
+    
+    # 파일 삭제
+    def delete_file(self, delete_YN: bool)-> None:
+        file_path = pathlib.Path(f'{self.s_path.as_posix()}/{self.__s_animal_name}.txt')
+        if delete_YN == True:
+            file_path.unlink()
 
-    # 동물이름 파일의 동물 소리 내용 저장 및 내용 변경
+    # 동물이름 파일에 동물 소리 내용 저장 및 내용 변경
     def save_file(self) -> None:
         with open(f'{self.__s_path.as_posix()}/{self.__s_animal_name}.txt', 'w', encoding='UTF8') as f:
             f.write(self.__s_animal_sound)
 
     # TODO: handler
-    def handler(self) -> None:
-        # check_exist = self.check_animList()
-        # if check_exist is True:
-        #     self.ask_file_content()
+    def handler(self) -> int:
+        self.write_fileName_to_animList()
+        self.show_directory_content()
+        check_exist = self.check_animList()
 
+        # 사용자가 입력한 [동물이름.txt]가 존재하면 해당 파일의 내용 바꿀지 말지 묻기
+        if check_exist is True:
+            change_content = self.ask_file_content()
 
-        # a = self.write_fileName_to_animList()
-        # print(a)
+            # 사용자가 이미 존재하는 [동물이름.txt]의 내용을 바꾸기 원한다면, 
+            # 내용 변경 후 animList.txt에 업데이트
+            if change_content == True:
+                self.save_file()
+                self.write_fileName_to_animList()
+                self.show_directory_content()
 
+            # 내용 변경 원치 않을 경우 삭제 여부 물음.
+            else:
+                self.delete_file(self.ask_delete_file())
+                self.write_fileName_to_animList()
+                self.show_directory_content()
 
-#def main():
-    # user_lst = input('[찾을 경로] [동물 이름] [동물 소리] 순으로 입력해주세요 :\n').split(' ')
-    # animal_io = SearchAndSave(user_lst[0],user_lst[1],user_lst[2])
+        # 사용자가 입력한 [동물이름.txt]가 존재하지 않으면 파일 생성
+        else: 
+            print(f'\n[{self.__s_animal_name}.txt] 파일을 새로 생성합니다.')
+            self.save_file()
+            self.write_fileName_to_animList()
+            self.show_directory_content()
+
+        return 0
         
-    # user = SearchAndSave('location', 'name', 'sound')
-    # print('{0}/Desktop/ani'.format(pathlib.Path.home().as_posix()))
-    
 
+
+def main():
+    user_lst = input('[찾을 경로] [동물 이름] [동물 소리] 순으로 입력해주세요 :\n').split(' ')
+    animal_io = SearchAndSave(user_lst[0],user_lst[1], ' '.join(user_lst[2:]))
+    animal_io.handler()
   
 if __name__ == '__main__':
-    print('\n>>>>>>>>>>>>>>> 시작 ')
-    fio = SearchAndSave('/home/rapa/git_workspace/ani', '햄스터', '멍멍')
-    fio.handler()
+    print('\n>>>>>>>>>>>>>>> save_search_animal.py <<<<<<<<<<<<< ')
+    print('각 요소는 띄어쓰기로 구분합니다!\nex)/rapa/home/ 고양이 야옹\n')
+    # sample ---> c:/Users/USER/Desktop/ani/ 사자 어흥
+    # fio = SearchAndSave('c:/Users/USER/Desktop/ani/', '사자', '어흥')
+    # fio.show_directory_content()
+    
+    main()
