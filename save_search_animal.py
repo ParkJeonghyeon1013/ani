@@ -207,15 +207,15 @@ def main():
     parser = argparse.ArgumentParser(description='save_search_animal.py 실행')
     parser.add_argument('path', type=str, nargs='?', help='[경로]')
     parser.add_argument('animal_name', type=str, nargs='?', help='[동물 이름]')
-    parser.add_argument('animal_sound', type=str, nargs='?', help='[동물 소리]')
+    parser.add_argument('animal_sound', type=str, nargs='+', help='[동물 소리]')
     args = parser.parse_args()
     
-    animal_io = SearchAndSave(args.path, args.animal_name, args.animal_sound)
+    animal_io = SearchAndSave(args.path, args.animal_name, ' '.join(args.animal_sound))
     animal_io.handler()
   
 if __name__ == '__main__':
     print('\n>>>>>>>>>>>>>>> save_search_animal.py <<<<<<<<<<<<< ')
-    print('각 요소는 띄어쓰기로 구분합니다!\nex)/rapa/home/ 고양이 야옹\n')
+    # print('각 요소는 띄어쓰기로 구분합니다!\nex)/rapa/home/ 고양이 야옹\n')
     # sample ---> c:/Users/USER/Desktop/ani/ 사자 어흥
     # fio = SearchAndSave('c:/Users/USER/Desktop/ani/', '사자', '어흥')
     # fio.show_directory_content()
