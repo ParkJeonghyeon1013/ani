@@ -4,6 +4,7 @@ from __future__ import annotations
 import os
 import re
 import pathlib
+import argparse
 
 '''
 [사용 설명]
@@ -16,7 +17,7 @@ import pathlib
 '''
 
 class SearchAndSave:
-    def __init__(self, s_path: pathlib.Path, s_animal_name: str, s_animal_sound: str) -> None:
+    def __init__(self, s_path: str, s_animal_name: str, s_animal_sound: str) -> None:
         self.__s_path = pathlib.Path(s_path)
         self.__s_animal_name = s_animal_name
         self.__s_animal_sound = s_animal_sound
@@ -54,7 +55,7 @@ class SearchAndSave:
     # animList.txt 제외한 디렉토리에 있는 파일명 리스트로 받기
     def get_files_Path(self) -> list:
         dir_name_list = list()
-        for i in self.__s_path.glob('**/*.txt'):
+        for i in self.__s_path.glob('*.txt'):
             i = i.as_posix()
             temp = i.replace(self.__s_path.as_posix(), '')
             # file_animName = file_animName.lstrip('/').rstrip('.txt')
@@ -67,7 +68,7 @@ class SearchAndSave:
     def get_dir_fileList(self) -> list[str]:
         file_list = list()
         file_name_list = self.get_files_Path()
-        path_list = list(self.__s_path.glob('**/*.txt'))
+        path_list = list(self.__s_path.glob('*.txt'))
 
         for num in range(len(path_list)):
             file_name_list[num] 
@@ -196,8 +197,17 @@ class SearchAndSave:
 
 
 def main():
-    user_lst = input('[찾을 경로] [동물 이름] [동물 소리] 순으로 입력해주세요 :\n').split(' ')
-    animal_io = SearchAndSave(user_lst[0],user_lst[1], ' '.join(user_lst[2:]))
+    # user_lst = input('[찾을 경로] [동물 이름] [동물 소리] 순으로 입력해주세요 :\n').split(' ')
+    # animal_io = SearchAndSave(user_lst[0],user_lst[1], ' '.join(user_lst[2:]))
+    # animal_io.handler()
+
+    parser = argparse.ArgumentParser(description='save_search_animal.py 실행')
+    parser.add_argument('path', type=str, nargs='?', help='[경로]')
+    parser.add_argument('animal_name', type=str, nargs='?', help='[동물 이름]')
+    parser.add_argument('animal_sound', type=str, nargs='?', help='[동물 소리]')
+    args = parser.parse_args()
+    
+    animal_io = SearchAndSave(args.path, args.animal_name, args.animal_sound)
     animal_io.handler()
   
 if __name__ == '__main__':
