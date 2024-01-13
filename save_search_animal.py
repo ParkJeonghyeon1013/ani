@@ -13,6 +13,7 @@ import argparse
 2. 동일 이름의 .txt 파일이 있는지 확인
 3. 없을 경우, 저장할지 말지 묻기
     있을 경우, 내용 확인 후 변경할지 말지 선택
+        변경 안할 경우, 삭제 여부 확인 
 
 '''
 
@@ -111,8 +112,10 @@ class SearchAndSave:
     # animList.txt 에 사용자가 쓴 동물 이름, 소리 추가
     def add_animList(self) -> list:
         with open(self.animList_path.as_posix(), 'a', encoding='UTF8') as f:
-            f.write(f'{self.__s_animal_name} / {self.__s_animal_sound}')    
+            f.write(f'{self.__s_animal_name} / {self.__s_animal_sound}')
 
+
+    # TODO: 파일 이름과 내용이 동일할 경우로 변경! 현재는 제목만 확인 가능.
     # animList.txt 안에 동물 이름이 존재하는지 확인
     def check_animList(self) -> bool:
         anim_list = self.set_animList()
@@ -150,7 +153,7 @@ class SearchAndSave:
         else: 
             print(f'\n[{self.__s_animal_name}.txt] 파일을 유지합니다.')
             return False
-    
+
     # 파일 삭제
     def delete_file(self, delete_YN: bool)-> None:
         file_path = pathlib.Path(f'{self.s_path.as_posix()}/{self.__s_animal_name}.txt')
